@@ -1,0 +1,32 @@
+name: Build Weather App
+
+on:
+  push:
+    paths:
+      - 'apps/weather/**'
+  pull_request:
+    paths:
+      - 'apps/weather/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: |
+          cd apps/weather
+          flutter pub get
+
+      - name: Build APK
+        run: |
+          cd apps/weather
+          flutter build apk --release

@@ -1,47 +1,43 @@
-name: Build Weather App
+name: Build weather APK
 
 on:
   push:
+    branches: [main]
     paths:
-      - 'apps/weather/**'
-  pull_request:
-    paths:
-      - 'apps/weather/**'
+      - '.devcontainer/flutter_application_pogoda/**'
+      - '.github/workflows/build-weather.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    # Даем права на запись, чтобы GitHub Actions мог создать релиз и загрузить APK
-    permissions:
-      contents: write
-
+    defaults:
+      run:
+        working-directory: .devcontainer/flutter_application_pogoda
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+      - uses: actions/setup-java@v4
         with:
-          channel: 'stable'
-          flutter-version: '3.29.0'
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.3'
+          channel: stable
           cache: true
 
-      - name: Install dependencies
-        run: |
-          cd apps/weather
-          flutter pub get
+      - run: flutter --version
+      - run: flutter pub get
+      - run: flutter build apk --release
+      - run: cp build/app/outputs/flutter-apk/app-release.apk ../../weather.apk
 
-      - name: Build APK
-        run: |
-          cd apps/weather
-          flutter build apk --release
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.0
-          name: Release v1.0.0
-          files: apps/weather/build/app/outputs/flutter-apk/app-release.apk
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: weather-latest
+          name: Weather APK
+          files: weather.apk

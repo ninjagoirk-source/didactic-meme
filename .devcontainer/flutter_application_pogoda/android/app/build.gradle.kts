@@ -5,6 +5,7 @@ plugins {
 }
 
 android {
+    ndkVersion = "26.1.10909125"
     namespace = "com.example.flutter_application_pogoda"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
